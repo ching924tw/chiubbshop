@@ -1,186 +1,296 @@
-// app/page.tsx
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import {
+  Search,
+  Heart,
+  User,
+  ShoppingBag,
+  ChevronDown,
+  X,
+  Menu,
+} from "lucide-react";
 
-export default function HomePage() {
+type CategoryItem = { href: string; label: string };
+
+const CATEGORIES: CategoryItem[] = [
+  { href: "/category/skincare", label: "肌膚保養" },
+  { href: "/category/body", label: "身體清潔" },
+  { href: "/category/intimate", label: "私密保養" },
+  { href: "/category/fragrance", label: "香氛生活" },
+  { href: "/category/home-living", label: "居家選品（把手／五金／小百件）" },
+  { href: "/category/furniture", label: "設計家具（自有設計）" },
+  { href: "/category/gift-sets", label: "禮盒 / 組合" },
+];
+
+export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false); // desktop dropdown
+  const [catOpenMobile, setCatOpenMobile] = useState(false); // mobile accordion
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!dropdownRef.current) return;
+      if (!dropdownRef.current.contains(e.target as Node)) setCatOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const mainLinks = [
+    { href: "/", label: "首頁" },
+    { href: "/topics", label: "主題" },
+    { href: "/news", label: "最新消息" },
+    { href: "/about", label: "關於我們" },
+  ];
+
   return (
-    <main className="min-h-screen bg-white text-neutral-900">
-      {/* Hero */}
-      <section className="relative pt-24 md:pt-28">
-        {/* Background image */}
-        <div className="relative h-[72vh] min-h-[520px] w-full overflow-hidden">
-          {/* 用純 CSS 背景，先放一張示意圖。之後你再換成你自己的圖 */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1520975693411-bd2f6d3f7d8a?auto=format&fit=crop&w=2400&q=80')",
-            }}
-          />
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-neutral-950/35" />
+    <header className="fixed top-0 left-0 z-50 w-full">
+      {/* top announcement bar */}
+      <div className="border-b border-neutral-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-5 py-2 text-[12px] tracking-[0.18em] text-neutral-700">
+          台灣滿 NT$1,500 免運｜新品上架中
+        </div>
+      </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full px-6 md:px-10">
-            <div className="mx-auto flex h-full max-w-6xl items-end pb-12 md:pb-16">
-              <div className="max-w-2xl text-white">
-                <p className="text-xs md:text-sm tracking-[0.35em] opacity-90">
-                  CHIUBB SELECT
-                </p>
-                <h1 className="mt-4 text-3xl md:text-5xl font-semibold leading-tight tracking-wide">
-                  以設計眼光挑選日常
-                </h1>
-                <p className="mt-4 text-sm md:text-base leading-relaxed text-white/90">
-                  精選進口日用與材質美學：從肌膚清潔、香氛與小百件，
-                  到五金把手與自設家具，讓每一次購物都更接近理想生活。
-                </p>
+      {/* nav */}
+      <nav className="border-b border-neutral-200 bg-white/92 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-5 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left: Logo */}
+            <div className="flex items-center gap-4">
+              <button
+                className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                aria-label="Open menu"
+                onClick={() => setMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
 
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <Link
-                    href="/categories"
-                    className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-medium text-neutral-900 shadow-sm hover:opacity-90 transition"
+              <Link
+                href="/"
+                className="text-[18px] md:text-[22px] font-semibold tracking-[0.18em] text-neutral-900"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setCatOpen(false);
+                }}
+              >
+                CHIUBB
+              </Link>
+            </div>
+
+            {/* Center: Desktop menu */}
+            <div className="hidden md:flex items-center gap-10 text-[13px] tracking-[0.22em] text-neutral-800">
+              <Link href="/" className="hover:opacity-70 transition">
+                首頁
+              </Link>
+
+              {/* 商品分類 dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  className="inline-flex items-center gap-2 hover:opacity-70 transition"
+                  onClick={() => setCatOpen((v) => !v)}
+                  aria-haspopup="menu"
+                  aria-expanded={catOpen}
+                >
+                  商品分類 <ChevronDown className="h-4 w-4" />
+                </button>
+
+                {catOpen && (
+                  <div
+                    className="absolute left-0 mt-4 w-[320px] rounded-2xl border border-neutral-200 bg-white shadow-sm p-3"
+                    role="menu"
                   >
-                    開始逛選品
-                  </Link>
+                    <div className="px-3 py-2 text-[11px] tracking-[0.2em] text-neutral-500">
+                      SHOP BY CATEGORY
+                    </div>
+                    <ul className="flex flex-col">
+                      {CATEGORIES.map((c) => (
+                        <li key={c.href}>
+                          <Link
+                            href={c.href}
+                            className="block rounded-xl px-3 py-2 text-[13px] tracking-wide text-neutral-800 hover:bg-neutral-50"
+                            onClick={() => setCatOpen(false)}
+                          >
+                            {c.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {mainLinks
+                .filter((l) => l.href !== "/")
+                .map((l) => (
                   <Link
-                    href="/topics"
-                    className="inline-flex items-center justify-center rounded-full border border-white/60 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition"
+                    key={l.href}
+                    href={l.href}
+                    className="hover:opacity-70 transition"
                   >
-                    讀主題選品誌
+                    {l.label}
                   </Link>
+                ))}
+            </div>
+
+            {/* Right: icons */}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/search"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                aria-label="搜尋"
+              >
+                <Search className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/favorites"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                aria-label="最愛"
+              >
+                <Heart className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/account"
+                className="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                aria-label="會員"
+              >
+                <User className="h-5 w-5" />
+              </Link>
+              <Link
+                href="/cart"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                aria-label="購物車"
+              >
+                <ShoppingBag className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile drawer */}
+        {mobileOpen && (
+          <div className="md:hidden">
+            <div
+              className="fixed inset-0 bg-black/30"
+              onClick={() => setMobileOpen(false)}
+            />
+            <div className="fixed right-0 top-0 h-full w-[86%] max-w-[360px] bg-white shadow-xl">
+              <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
+                <div className="text-[16px] font-semibold tracking-[0.18em]">
+                  MENU
                 </div>
+                <button
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-neutral-100"
+                  aria-label="Close menu"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-                <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest text-white/80">
-                  <span>SKINCARE</span>
-                  <span>HOMEWARE</span>
-                  <span>HARDWARE</span>
-                  <span>FURNITURE</span>
+              <div className="px-5 py-4">
+                <Link
+                  href="/"
+                  className="block py-3 text-[14px] tracking-[0.18em]"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  首頁
+                </Link>
+
+                <button
+                  className="flex w-full items-center justify-between py-3 text-[14px] tracking-[0.18em]"
+                  onClick={() => setCatOpenMobile((v) => !v)}
+                >
+                  商品分類
+                  <ChevronDown
+                    className={`h-4 w-4 transition ${
+                      catOpenMobile ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {catOpenMobile && (
+                  <div className="mb-2 rounded-2xl bg-neutral-50 p-3">
+                    {CATEGORIES.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        className="block rounded-xl px-3 py-2 text-[14px] text-neutral-800 hover:bg-white"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <Link
+                  href="/topics"
+                  className="block py-3 text-[14px] tracking-[0.18em]"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  主題
+                </Link>
+                <Link
+                  href="/news"
+                  className="block py-3 text-[14px] tracking-[0.18em]"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  最新消息
+                </Link>
+                <Link
+                  href="/about"
+                  className="block py-3 text-[14px] tracking-[0.18em]"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  關於我們
+                </Link>
+
+                <div className="mt-6 border-t border-neutral-200 pt-4">
+                  <div className="flex gap-2">
+                    <Link
+                      href="/search"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100"
+                      aria-label="搜尋"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <Search className="h-5 w-5" />
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100"
+                      aria-label="最愛"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <Heart className="h-5 w-5" />
+                    </Link>
+                    <Link
+                      href="/account"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100"
+                      aria-label="會員"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <User className="h-5 w-5" />
+                    </Link>
+                    <Link
+                      href="/cart"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100"
+                      aria-label="購物車"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <ShoppingBag className="h-5 w-5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Under-hero strip */}
-        <div className="border-b border-neutral-200">
-          <div className="mx-auto max-w-6xl px-6 md:px-10 py-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="rounded-2xl bg-neutral-50 p-5">
-              <p className="font-medium tracking-wide">嚴選來源</p>
-              <p className="mt-2 text-neutral-600 leading-relaxed">
-                我們只上架「自己會買」的東西：成分、材質、做工、故事都要過關。
-              </p>
-            </div>
-            <div className="rounded-2xl bg-neutral-50 p-5">
-              <p className="font-medium tracking-wide">設計視角</p>
-              <p className="mt-2 text-neutral-600 leading-relaxed">
-                從生活動線與手感出發，讓物件與空間自然融合。
-              </p>
-            </div>
-            <div className="rounded-2xl bg-neutral-50 p-5">
-              <p className="font-medium tracking-wide">持續更新</p>
-              <p className="mt-2 text-neutral-600 leading-relaxed">
-                子分類會一直長大：不只清潔保養，也會有把手、小百件、家具。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Category cards */}
-      <section className="mx-auto max-w-6xl px-6 md:px-10 py-14 md:py-18">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <p className="text-xs tracking-[0.35em] text-neutral-500">
-              CATEGORIES
-            </p>
-            <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-wide">
-              商品分類
-            </h2>
-            <p className="mt-3 text-sm text-neutral-600 leading-relaxed max-w-2xl">
-              先用大分類建立選品版圖；每個分類底下的子分類之後都可以自由擴充。
-            </p>
-          </div>
-
-          <Link
-            href="/categories"
-            className="hidden md:inline-flex items-center justify-center rounded-full border border-neutral-300 px-5 py-2.5 text-sm font-medium hover:bg-neutral-50 transition"
-          >
-            查看全部分類
-          </Link>
-        </div>
-
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              title: "肌膚清潔 / 保養",
-              desc: "溫和、有效、成分透明。你每天都會用到的那種。",
-              href: "/categories/skincare",
-            },
-            {
-              title: "生活小百件",
-              desc: "香氛、日用品、選物小物：讓日常更精緻。",
-              href: "/categories/homeware",
-            },
-            {
-              title: "特色把手 / 五金",
-              desc: "手感與比例很重要。用細節把空間升級。",
-              href: "/categories/hardware",
-            },
-          ].map((c) => (
-            <Link
-              key={c.title}
-              href={c.href}
-              className="group rounded-3xl border border-neutral-200 bg-white p-7 shadow-sm hover:shadow-md transition"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold tracking-wide">
-                    {c.title}
-                  </h3>
-                  <p className="mt-3 text-sm text-neutral-600 leading-relaxed">
-                    {c.desc}
-                  </p>
-                </div>
-                <span className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-700 group-hover:bg-neutral-900 group-hover:text-white transition">
-                  →
-                </span>
-              </div>
-              <div className="mt-6 h-[1px] w-full bg-neutral-100" />
-              <p className="mt-4 text-xs tracking-widest text-neutral-500">
-                ENTER
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-10 md:hidden">
-          <Link
-            href="/categories"
-            className="inline-flex w-full items-center justify-center rounded-full border border-neutral-300 px-5 py-3 text-sm font-medium hover:bg-neutral-50 transition"
-          >
-            查看全部分類
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer mini */}
-      <footer className="border-t border-neutral-200">
-        <div className="mx-auto max-w-6xl px-6 md:px-10 py-10 text-sm text-neutral-600 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p className="tracking-wide">
-            © {new Date().getFullYear()} CHIUBB. Curated with a design eye.
-          </p>
-          <div className="flex gap-6 text-sm">
-            <Link href="/about" className="hover:opacity-70 transition">
-              關於我們
-            </Link>
-            <Link href="/news" className="hover:opacity-70 transition">
-              最新消息
-            </Link>
-            <Link href="/contact" className="hover:opacity-70 transition">
-              聯絡
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </main>
+        )}
+      </nav>
+    </header>
   );
 }
