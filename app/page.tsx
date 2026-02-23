@@ -15,13 +15,14 @@ import {
 type CategoryItem = { href: string; label: string };
 
 const CATEGORIES: CategoryItem[] = [
+  { href: "/category/all", label: "全部" },
   { href: "/category/skincare", label: "肌膚保養" },
   { href: "/category/body", label: "身體清潔" },
   { href: "/category/intimate", label: "私密保養" },
   { href: "/category/fragrance", label: "香氛生活" },
-  { href: "/category/home-living", label: "居家選品（把手／五金／小百件）" },
-  { href: "/category/furniture", label: "設計家具（自有設計）" },
-  { href: "/category/gift-sets", label: "禮盒 / 組合" },
+  { href: "/category/home-living", label: "居家選品（把手／五金／小擺件）" },
+  { href: "/category/furniture", label: "設計家具" },
+  { href: "/category/gift-sets", label: "禮盒" },
 ];
 
 export default function Navbar() {
